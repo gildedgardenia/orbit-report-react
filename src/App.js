@@ -1,53 +1,70 @@
 // import logo from './logo.svg';
 import './App.css';
-import React, { useState, useEffect } from 'react';
-import Satellites from './components/Satellites';
+import React, { useMemo, useState, useEffect } from 'react';
+import axios from 'axios';
+import { COLUMNS } from './components/columns';
+import { useTable, useGlobalFilter } from "react-table";
 
 function App() {
 
+  const [satellites, setData] = useState([]);
+  useEffect(() => {
+      axios.get('https://handlers.education.launchcode.org/static/satellites.json')
+        .then(res => setData(res.data.satellites))
+    },[])
+
+  const columns = useMemo(() => COLUMNS, []);
+  const { getTableProps, getTableBodyProps, headerGroups, rows, state, setGlobalFilter, prepareRow } = useTable({columns, data: satellites}, useGlobalFilter);
+
+  const { globalFilter } = state;
+
     return (
+
       <div className='App'>
         <h1>Orbit Report</h1>
         <div>
-          <Satellites/>
+          <div className="search-container">
+            <label for="search">Search: </label>
+            <input
+                name="search"
+                type="text"
+                value={globalFilter || ''}
+                onChange={(e) => setGlobalFilter(e.target.value)}
+            />
+          </div>
+        <div>
+          <table {...getTableProps()}>
+                  <thead>
+                      {headerGroups.map((headerGroup) => (
+                          <tr {...headerGroup.getHeaderGroupProps()}>
+                              {headerGroup.headers.map((column) => (
+                                  <th {...column.getHeaderProps()}>
+                                      {column.render('Header')}
+                                  </th>
+                              ))}
+                          </tr>
+                      ))}
+                  </thead>
+                  <tbody {...getTableBodyProps()}>
+                      {rows.map((row) => {
+                          prepareRow(row);
+                          return (
+                              <tr {...row.getRowProps()}>
+                                  {row.cells.map((cell) => {
+                                      return (
+                                          <td {...cell.getCellProps()}>
+                                              {cell.render('Cell')}
+                                          </td>
+                                      );
+                                  })}
+                              </tr>
+                          );
+                      })}
+                  </tbody>
+              </table>
         </div>
       </div>
-
-
-      // <div className="App">
-      //   <header className="App-header">
-      //     <h1>Orbit Report</h1>
-      //     {/* <table className="satellite-table">
-      //       <tr>
-      //         <th>Name</th>
-      //         <th>Type</th>
-      //         <th>Operational</th>
-      //         <th>Orbit Type</th>
-      //         <th>Launch Date</th>
-      //       </tr>
-      //       <tr>
-      //         <td>Sirius 1</td>
-      //         <td>Communication</td>
-      //         <td>true</td>
-      //         <td>LOW</td>
-      //         <td>2007-11-17</td>
-      //       </tr>
-      //     </table> */}
-      //     {/* Search goes here */}
-
-      //     <ul>
-      //       { data && data.length > 0 && data.map(item => (
-      //         <li>{item.name}</li>
-      //       ))}
-      //     </ul>
-
-      //     <h3>Satellite Count:</h3>
-      //     <div>
-      //       Total:
-      //       { data && data.length >0 && <span>data.length</span>}
-      //     </div>
-      //   </header>
-      // </div>
+      </div>
     );
   }
 
