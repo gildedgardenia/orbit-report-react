@@ -1,4 +1,3 @@
-// import logo from './logo.svg';
 import './App.css';
 import React, { useMemo, useState, useEffect } from 'react';
 import axios from 'axios';
@@ -24,7 +23,7 @@ function App() {
         <h1>Orbit Report</h1>
         <div>
           <div className="search-container">
-            <label for="search">Search: </label>
+            <label for="search"><b>Search: </b></label>
             <input
                 name="search"
                 type="text"
@@ -33,7 +32,7 @@ function App() {
             />
           </div>
         <div>
-          <table {...getTableProps()}>
+          <table className='tableWrapper' {...getTableProps()}>
                   <thead>
                       {headerGroups.map((headerGroup) => (
                           <tr {...headerGroup.getHeaderGroupProps()}>
@@ -62,6 +61,9 @@ function App() {
                       })}
                   </tbody>
               </table>
+        </div>
+        <div> 
+          <p><b>Satellite Count: </b> {rows.length}</p>
         </div>
       </div>
       </div>
